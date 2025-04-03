@@ -1,0 +1,36 @@
+services:
+  pv_nginx:
+    container_name: pv_nginx
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./:/var/www/project
+    depends_on:
+      - pv_php
+
+  pv_php:
+    container_name: pv_php
+    build: 
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/project
+    ports:
+      - "9000:9000"
+
+  pv_mysql:
+    container_name: pv_mysql
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    environment:
+      MYSQL_USER: root
+      MYSQL_PASSWORD: papervault
+      MYSQL_ROOT_PASSWORD: papervault
+    depends_on:
+      - pv_php
